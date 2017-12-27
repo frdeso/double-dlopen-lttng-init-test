@@ -1,0 +1,5 @@
+*.o
+libspam-trace.c
+libspam-trace.h
+libspam.so
+spam-loader

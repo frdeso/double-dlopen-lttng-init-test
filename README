@@ -1,0 +1,7 @@
+A simple test demonstrating consequences of second attempt of dlopen() a
+dynamic library which has lttng-ust tracepoints init code.
+
+This software is distributed under MIT license. See LICENSE file for details.
+
+This project uses lttng-get-tp utility and depends on lttng-ust library from
+LTTng-UST project. See http://lttng.org/ for details.
