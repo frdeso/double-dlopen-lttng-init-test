@@ -33,9 +33,7 @@ void (*fptr)();
 static void * test_load(const char *path, int i) {
 	fprintf(stderr, "Loading %s...", path);
 	void *p = dlopen(path, DLOPEN_FLAGS);
-	if(i == 1) {
-		*(void **)(&fptr) = dlsym(p, "spam_foo");
-	}
+	*(void **)(&fptr) = dlsym(p, "spam_foo");
 	if (p != NULL) {
 		fprintf(stderr, " OK\n");
 	} else {

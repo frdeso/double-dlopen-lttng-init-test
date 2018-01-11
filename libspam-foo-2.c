@@ -35,6 +35,6 @@ void spam_foo(void) {
 	uint64_t timestamp = ((uint64_t)current.tv_sec) * MILLIARD + current.tv_nsec;
 	tracepoint(spam, dummy_event, timestamp);
 	tracepoint(spam, new_dummy_event, timestamp);
-	printf("%s\n", __func__);
+	printf("%s:%s\n", __FILE__, __func__);
 }
 
