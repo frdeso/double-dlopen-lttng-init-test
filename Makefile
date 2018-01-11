@@ -59,6 +59,12 @@ libspam-trace-2.o: libspam-trace-2.h libspam-trace-2.c
 spam-loader: LDFLAGS += -ldl
 spam-loader: spam-loader.o
 	cc -pthread spam-loader.o -ldl  -o spam-loader
+
+run:
+	./spam-loader ./libspam-1.so ./libspam-2.so
+
+run-reverse:
+	./spam-loader ./libspam-2.so ./libspam-1.so
 .PHONY: clean
 clean:
 	rm -f spam-loader
