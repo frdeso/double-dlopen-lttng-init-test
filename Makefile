@@ -20,37 +20,49 @@
 # SOFTWARE.
 
 CPPFLAGS := -I.
-CFLAGS := -std=gnu99 -pedantic -Wall -Wextra -pthread
+CFLAGS := -std=gnu99 -pedantic -Wall -Wextra -pthread -g
 LDFLAGS := -pthread
 
 .PHONY: all
-all: libspam.so libspam-clone.so spam-loader
+all: libspam-1.so libspam-2.so spam-loader
 
-libspam.so: LDFLAGS += -shared -llttng-ust
-libspam.so: libspam-foo.o libspam-trace.o
+libspam-1.so: LDFLAGS += -shared -llttng-ust
+libspam-1.so: libspam-foo-1.o libspam-trace-1.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-libspam-trace.h: libspam-trace.tp
-	lttng-gen-tp libspam-trace.tp -o $@
-libspam-trace.c: libspam-trace.tp
-	lttng-gen-tp libspam-trace.tp -o $@
+libspam-2.so: LDFLAGS += -shared -llttng-ust
+libspam-2.so: libspam-foo-2.o libspam-trace-2.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-libspam-foo.o: CFLAGS += -fPIC
-libspam-foo.o: libspam-trace.h libspam-foo.c
-libspam-trace.o: CFLAGS += -fPIC
-libspam-trace.o: libspam-trace.h libspam-trace.c
+libspam-trace-1.h: libspam-trace-1.tp
+	lttng-gen-tp libspam-trace-1.tp -o $@
+libspam-trace-1.c: libspam-trace-1.tp
+	lttng-gen-tp libspam-trace-1.tp -o $@
 
-libspam-clone.so: libspam.so
-	cp -f libspam.so libspam-clone.so
+libspam-trace-2.h: libspam-trace-2.tp
+	lttng-gen-tp libspam-trace-2.tp -o $@
+libspam-trace-2.c: libspam-trace-2.tp
+	lttng-gen-tp libspam-trace-2.tp -o $@
+
+libspam-foo-1.o: CFLAGS += -fPIC
+libspam-foo-1.o: libspam-trace-1.h libspam-foo-1.c
+
+libspam-foo-2.o: CFLAGS += -fPIC
+libspam-foo-2.o: libspam-trace-2.h libspam-foo-2.c
+
+libspam-trace-1.o: CFLAGS += -fPIC
+libspam-trace-1.o: libspam-trace-1.h libspam-trace-1.c
+
+libspam-trace-2.o: CFLAGS += -fPIC
+libspam-trace-2.o: libspam-trace-2.h libspam-trace-2.c
 
 spam-loader: LDFLAGS += -ldl
 spam-loader: spam-loader.o
-
+	cc -pthread spam-loader.o -ldl  -o spam-loader
 .PHONY: clean
 clean:
 	rm -f spam-loader
-	rm -f libspam.so
-	rm -f libspam-clone.so
+	rm -f libspam-1.so libspam-2.so
 	rm -f *.o
-	rm -f libspam-trace.h libspam-trace.c
+	rm -f libspam-trace-1.h libspam-trace-1.c libspam-trace-2.h libspam-trace-2.c
 

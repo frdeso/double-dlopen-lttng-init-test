@@ -1,5 +1,5 @@
 /*
- * The spam-loader test executable
+ * The libspam test dynamic library
  * Copyright 2017 Itiviti AB, Anton Smyk <Anton.Smyk@itiviti.com>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -21,36 +21,19 @@
  * SOFTWARE.
  */
 
-#include <stdlib.h>
-#include <unistd.h>
+#include <stdint.h>
 #include <stdio.h>
-#include <dlfcn.h>
+#include <time.h>
+#include <pthread.h>
+#include "libspam-trace-1.h"
 
-#define DLOPEN_FLAGS RTLD_NOW
-void *handle;
-void (*fptr)();
+#define MILLIARD 1000000000
 
-static void * test_load(const char *path, int i) {
-	fprintf(stderr, "Loading %s...", path);
-	void *p = dlopen(path, DLOPEN_FLAGS);
-	if(i == 1) {
-		*(void **)(&fptr) = dlsym(p, "spam_foo");
-	}
-	if (p != NULL) {
-		fprintf(stderr, " OK\n");
-	} else {
-		fprintf(stderr, "dlopen(%s) failed: %s\n", path, dlerror());
-	}
-
-	return p;
+void spam_foo(void) {
+	struct timespec current;
+	clock_gettime(CLOCK_REALTIME, &current);
+	uint64_t timestamp = ((uint64_t)current.tv_sec) * MILLIARD + current.tv_nsec;
+	tracepoint(spam, dummy_event, timestamp);
+	printf("%s\n", __func__);
 }
 
-int main(int argc, char **argv) {
-	int i;
-	for (i = 1; i < argc; i++) {
-		test_load(argv[i], i);
-		fptr();
-	}
-
-	fprintf(stderr, "Success!\n");
-}
