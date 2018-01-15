@@ -20,7 +20,7 @@
 # SOFTWARE.
 
 CPPFLAGS := -I.
-CFLAGS := -std=gnu99 -pedantic -Wall -Wextra -pthread
+CFLAGS := -std=gnu99 -pedantic -Wall -Wextra -pthread -g
 LDFLAGS := -pthread
 
 .PHONY: all
