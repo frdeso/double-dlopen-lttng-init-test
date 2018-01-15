@@ -42,5 +42,5 @@ int main(int argc, char **argv) {
 	int i;
 	for (i = 1; i < argc; i++)
 		test_load(argv[i]);
-	fprintf(stderr, "Success!\n");
+	fprintf(stderr, "Finished.\n");
 }
