@@ -22,9 +22,9 @@
  */
 
 TRACEPOINT_EVENT(spam, dummy_event,
-    TP_ARGS(unsigned long, timestamp_arg),
+    TP_ARGS(unsigned, counter_arg),
     TP_FIELDS(
-        ctf_integer(unsigned long, timestamp, timestamp_arg)
+        ctf_integer(unsigned, counter, counter_arg)
     )
 )
 

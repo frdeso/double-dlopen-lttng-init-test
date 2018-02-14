@@ -26,21 +26,39 @@
 #include <dlfcn.h>
 
 #define DLOPEN_FLAGS RTLD_NOW
+#define FN_NAME "spam_foo"
+#define NUM_ITERATIONS 10
 
-static void * test_load(const char *path) {
-	fprintf(stderr, "Loading %s...", path);
-	void *p = dlopen(path, DLOPEN_FLAGS);
-	if (p != NULL) {
-		fprintf(stderr, " OK\n");
-	} else {
-		fprintf(stderr, "dlopen(%s) failed: %s\n", path, dlerror());
+static void test_module(const char *path) {
+
+	fprintf(stderr, "Loading %s... ", path);
+	void *module = dlopen(path, DLOPEN_FLAGS);
+	if (module == NULL) {
+		fprintf(stderr, "dlopen() failed: %s\n", dlerror());
+		return;
+	}
+	fprintf(stderr, "OK\n");
+
+	fprintf(stderr, "Searching function %s... ", FN_NAME);
+	void *sym = dlsym(module, FN_NAME);
+	if (sym == NULL) {
+		fprintf(stderr, "dlsym() failed: %s\n", dlerror());
+		return;
 	} 
-	return p;
+	fprintf(stderr, "OK\n");
+
+	fprintf(stderr, "Calling function %s... ", FN_NAME);
+	void (*fn)(unsigned) = sym;
+	for (unsigned i = 0; i < NUM_ITERATIONS; i++) {
+		fn(i);
+	}
+	fprintf(stderr, "OK\n");
 }
 
 int main(int argc, char **argv) {
 	int i;
 	for (i = 1; i < argc; i++)
-		test_load(argv[i]);
+		test_module(argv[i]);
 	fprintf(stderr, "Finished.\n");
 }
+

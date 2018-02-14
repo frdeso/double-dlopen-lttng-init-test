@@ -28,10 +28,7 @@
 
 #define MILLIARD 1000000000
 
-void spam_foo(void) {
-	struct timespec current;
-	clock_gettime(CLOCK_REALTIME, &current);
-	uint64_t timestamp = ((uint64_t)current.tv_sec) * MILLIARD + current.tv_nsec;
-	tracepoint(spam, dummy_event, timestamp);
+void spam_foo(unsigned counter) {
+	tracepoint(spam, dummy_event, counter);
 }
 
