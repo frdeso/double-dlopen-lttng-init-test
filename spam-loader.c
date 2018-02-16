@@ -29,36 +29,68 @@
 #define FN_NAME "spam_foo"
 #define NUM_ITERATIONS 10
 
-static void test_module(const char *path) {
-
-	fprintf(stderr, "Loading %s... ", path);
+static void *load_module(const char *path) {
 	void *module = dlopen(path, DLOPEN_FLAGS);
 	if (module == NULL) {
 		fprintf(stderr, "dlopen() failed: %s\n", dlerror());
+		return module;
+	}
+	return module;
+}
+
+static void unload_module(void *handle) {
+	int ret = dlclose(handle);
+	if (ret) {
+		fprintf(stderr, "dlclose() failed: %s\n", dlerror());
 		return;
 	}
-	fprintf(stderr, "OK\n");
+	return;
+}
 
-	fprintf(stderr, "Searching function %s... ", FN_NAME);
-	void *sym = dlsym(module, FN_NAME);
+static void test_module(void *handle, int arg) {
+	void *sym = dlsym(handle, FN_NAME);
 	if (sym == NULL) {
 		fprintf(stderr, "dlsym() failed: %s\n", dlerror());
 		return;
-	} 
-	fprintf(stderr, "OK\n");
-
-	fprintf(stderr, "Calling function %s... ", FN_NAME);
-	void (*fn)(unsigned) = sym;
-	for (unsigned i = 0; i < NUM_ITERATIONS; i++) {
-		fn(i);
 	}
-	fprintf(stderr, "OK\n");
+
+	void (*fn)(unsigned) = sym;
+	fn(arg);
+	return;
 }
 
 int main(int argc, char **argv) {
-	int i;
-	for (i = 1; i < argc; i++)
-		test_module(argv[i]);
+	void *handle_1;
+	void *handle_2;
+
+	fprintf(stderr, "Loading version #1 %s... ", argv[1]);
+	handle_1 = load_module(argv[1]);
+	fprintf(stderr, "OK\n");
+
+	fprintf(stderr, "Calling function %s... ", FN_NAME);
+	test_module(handle_1, 1);
+	fprintf(stderr, "OK\n");
+
+	fprintf(stderr, "Loading version #2 %s... ", argv[2]);
+	handle_2 = load_module(argv[2]);
+	fprintf(stderr, "OK\n");
+
+	fprintf(stderr, "Calling function %s... ", FN_NAME);
+	test_module(handle_1, 2);
+	fprintf(stderr, "OK\n");
+
+	fprintf(stderr, "Unloading version #1 ...");
+	unload_module(handle_1);
+	fprintf(stderr, "OK\n");
+
+	fprintf(stderr, "Calling function %s... ", FN_NAME);
+	test_module(handle_2, 3);
+	fprintf(stderr, "OK\n");
+
+	fprintf(stderr, "Unloading version #2 ...");
+	unload_module(handle_2);
+	fprintf(stderr, "OK\n");
+
 	fprintf(stderr, "Finished.\n");
 }
 
